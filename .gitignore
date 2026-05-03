@@ -1,0 +1,10 @@
+# Go build artifacts
+/jwt-authentication-app
+*.exe
+*.test
+*.out
+
+# SQLite files
+/app.db
+/app.db-shm
+/app.db-wal
