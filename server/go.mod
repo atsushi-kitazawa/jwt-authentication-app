@@ -1,4 +1,4 @@
-module jwt-authentication-app
+module jwt-authentication-app/server
 
 go 1.25.5
 
