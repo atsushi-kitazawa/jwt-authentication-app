@@ -15,12 +15,20 @@ type menuItem struct {
 	status      string
 }
 
+type screen int
+
+const (
+	screenHome screen = iota
+	screenPlayground
+)
+
 type model struct {
-	items    []menuItem
-	cursor   int
-	selected int
-	width    int
-	height   int
+	currentScreen screen
+	items         []menuItem
+	cursor        int
+	selected      int
+	width         int
+	height        int
 }
 
 var (
@@ -57,6 +65,12 @@ var (
 	statusMutedStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("214")).
 				Bold(true)
+
+	heroStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("230")).
+			Background(lipgloss.Color("57")).
+			Padding(1, 2)
 )
 
 func initialModel() model {
@@ -84,8 +98,9 @@ func initialModel() model {
 	}
 
 	return model{
-		items:    items,
-		selected: 0,
+		currentScreen: screenHome,
+		items:         items,
+		selected:      0,
 	}
 }
 
@@ -102,16 +117,26 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
+		case "enter", " ":
+			if m.currentScreen == screenHome {
+				m.currentScreen = screenPlayground
+				return m, nil
+			}
+
+			m.selected = m.cursor
+		case "esc", "b":
+			if m.currentScreen == screenPlayground {
+				m.currentScreen = screenHome
+				return m, nil
+			}
 		case "up", "k":
-			if m.cursor > 0 {
+			if m.currentScreen == screenPlayground && m.cursor > 0 {
 				m.cursor--
 			}
 		case "down", "j":
-			if m.cursor < len(m.items)-1 {
+			if m.currentScreen == screenPlayground && m.cursor < len(m.items)-1 {
 				m.cursor++
 			}
-		case "enter", " ":
-			m.selected = m.cursor
 		}
 	}
 
@@ -123,14 +148,61 @@ func (m model) View() string {
 		return "loading..."
 	}
 
+	switch m.currentScreen {
+	case screenHome:
+		return m.renderHome()
+	case screenPlayground:
+		return m.renderPlayground()
+	default:
+		return "unknown screen"
+	}
+}
+
+func (m model) renderHome() string {
 	header := titleStyle.Render("JWT Client Playground")
-	subtitle := subtleStyle.Render("Bubble Tea + Lip Gloss sample. Move with j/k or arrows, select with enter, quit with q.")
+	subtitle := subtleStyle.Render("A small Bubble Tea sample with a simple screen transition.")
+
+	hero := heroStyle.Width(max(48, m.width-12)).Render(strings.Join([]string{
+		"Top Screen",
+		"",
+		"This is the entry screen for the TUI client.",
+		"Press enter to move to the current playground screen and feel the transition flow.",
+	}, "\n"))
+
+	info := panelStyle.Width(max(48, m.width-12)).Render(strings.Join([]string{
+		"Planned next steps",
+		"",
+		"- login screen",
+		"- users list",
+		"- user detail",
+		"- health check card",
+	}, "\n"))
+
+	footer := subtleStyle.Render("enter: open sample screen   q: quit")
+
+	return appStyle.Render(lipgloss.JoinVertical(
+		lipgloss.Left,
+		header,
+		subtitle,
+		"",
+		hero,
+		"",
+		info,
+		"",
+		footer,
+	))
+}
+
+func (m model) renderPlayground() string {
+
+	header := titleStyle.Render("JWT Client Playground")
+	subtitle := subtleStyle.Render("Bubble Tea + Lip Gloss sample. Move with j/k or arrows, select with enter, back with b or esc.")
 
 	left := m.renderMenu()
 	right := m.renderDetail()
 	content := lipgloss.JoinHorizontal(lipgloss.Top, left, right)
 
-	footer := subtleStyle.Render("This is a sample TUI only. API calls will be wired in after we shape the UI.")
+	footer := subtleStyle.Render("This is a sample TUI only. API calls will be wired in after we shape the UI. Press b to return home.")
 
 	return appStyle.Render(lipgloss.JoinVertical(
 		lipgloss.Left,
