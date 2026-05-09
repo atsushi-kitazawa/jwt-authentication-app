@@ -50,6 +50,7 @@ JWT_SECRET=my-secret go run .
 - JWT 認証が必要
   - `GET /`
   - `GET /users`
+  - `GET /users/name/{name}`
   - `GET /users/{id}`
   - `PUT /users/{id}`
   - `DELETE /users/{id}`
@@ -107,6 +108,13 @@ curl http://localhost:8080/users \
 
 ```bash
 curl http://localhost:8080/users/1 \
+  -H "Authorization: Bearer <JWT_TOKEN>"
+```
+
+### ユーザ名で参照
+
+```bash
+curl http://localhost:8080/users/name/taro \
   -H "Authorization: Bearer <JWT_TOKEN>"
 ```
 

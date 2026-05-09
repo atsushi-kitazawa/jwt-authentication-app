@@ -10,6 +10,7 @@ func registerRoutes(mux *http.ServeMux, userRepository *userRepository, authenti
 	mux.HandleFunc("POST /users", createUserHandler(userRepository))
 	mux.HandleFunc("POST /login", loginHandler(userRepository, authenticator))
 	mux.Handle("GET /users", requireAuth(listUsersHandler(userRepository)))
+	mux.Handle("GET /users/name/{name}", requireAuth(getUserByNameHandler(userRepository)))
 	mux.Handle("GET /users/{id}", requireAuth(getUserHandler(userRepository)))
 	mux.Handle("PUT /users/{id}", requireAuth(updateUserHandler(userRepository)))
 	mux.Handle("DELETE /users/{id}", requireAuth(deleteUserHandler(userRepository)))

@@ -121,6 +121,19 @@ func (r *userRepository) findByName(name string) (authUser, error) {
 	return foundUser, nil
 }
 
+func (r *userRepository) getByName(name string) (user, error) {
+	foundUser, err := r.findByName(name)
+	if err != nil {
+		return user{}, err
+	}
+
+	return user{
+		ID:    foundUser.ID,
+		Name:  foundUser.Name,
+		Email: foundUser.Email,
+	}, nil
+}
+
 func (r *userRepository) list() ([]user, error) {
 	rows, err := r.db.Query(
 		"SELECT id, name, email FROM users WHERE deleted_at IS NULL ORDER BY id ASC",

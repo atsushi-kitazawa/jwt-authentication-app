@@ -123,6 +123,23 @@ func getUserHandler(userRepository *userRepository) http.HandlerFunc {
 	}
 }
 
+func getUserByNameHandler(userRepository *userRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimSpace(r.PathValue("name"))
+		foundUser, err := userRepository.getByName(name)
+		if err == errUserNotFound {
+			writeJSON(w, http.StatusNotFound, errorResponse{Message: "user not found"})
+			return
+		}
+		if err != nil {
+			http.Error(w, "failed to fetch user", http.StatusInternalServerError)
+			return
+		}
+
+		writeJSON(w, http.StatusOK, foundUser)
+	}
+}
+
 func parseUserRequest(w http.ResponseWriter, r *http.Request) (createUserRequest, bool) {
 	var req createUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
