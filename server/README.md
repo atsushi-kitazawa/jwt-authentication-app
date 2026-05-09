@@ -44,6 +44,8 @@ JWT_SECRET=my-secret go run .
 ## 認証ルール
 
 - 未認証でアクセス可能
+  - `GET /docs`
+  - `GET /openapi.yaml`
   - `GET /health`
   - `POST /users`
   - `POST /login`
@@ -56,6 +58,14 @@ JWT_SECRET=my-secret go run .
   - `DELETE /users/{id}`
 
 ## API
+
+### Swagger UI
+
+ブラウザで次にアクセスすると Swagger UI を確認できます。
+
+```text
+http://localhost:8080/docs
+```
 
 ### Health Check
 

@@ -6,6 +6,8 @@ func registerRoutes(mux *http.ServeMux, userRepository *userRepository, authenti
 	requireAuth := authenticator.middleware
 
 	mux.Handle("GET /", requireAuth(http.HandlerFunc(rootHandler)))
+	mux.HandleFunc("GET /docs", docsHandler)
+	mux.HandleFunc("GET /openapi.yaml", openAPISpecHandler)
 	mux.HandleFunc("GET /health", healthHandler)
 	mux.HandleFunc("POST /users", createUserHandler(userRepository))
 	mux.HandleFunc("POST /login", loginHandler(userRepository, authenticator))
